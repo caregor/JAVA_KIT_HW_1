@@ -94,7 +94,7 @@ public class ServerWindow extends JFrame {
 
     public void addClient(ClientWindow clientWindow) {
         clientWindows.add(clientWindow);
-
+    }
 
     public void sendMessage(String message, ClientWindow sender) {
         System.out.println("Sender: " + sender);
