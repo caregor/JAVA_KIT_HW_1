@@ -1,7 +1,10 @@
 package ru.gb.hw.client;
 
+import ru.gb.hw.server.ServerWindow;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class ClientWindow extends JFrame {
     private static final int WIDTH = 400;
@@ -37,15 +40,36 @@ public class ClientWindow extends JFrame {
         add(panelBottom, BorderLayout.SOUTH);
 
         log.setEditable(false);
+        btnSend.setEnabled(false);
+        tfMessage.setEnabled(false);
         JScrollPane scrolling = new JScrollPane(log);
         add(scrolling);
 
         setVisible(true);
 
         btnSend.addActionListener(actionEvent -> {
-            log.append(tfLogin.getText() + ": " + tfMessage.getText());
-            tfMessage.setText("");
+            if(ServerWindow.isServerWorking()){
+                log.append(tfLogin.getText() + ": " + tfMessage.getText() + "\n");
+                tfMessage.setText("");
+            }else {
+                log.append("Server is offline\n");
+            }
         });
+        btnLogin.addActionListener(actionEvent -> {
+            if(ServerWindow.isServerWorking() && Objects.equals(btnLogin.getText(), "Login")){
+                log.append("Connection Successful!\n");
+                btnLogin.setText("Logout");
+                btnSend.setEnabled(true);
+                tfMessage.setEnabled(true);
+            }else if (ServerWindow.isServerWorking() && Objects.equals(btnLogin.getText(), "Logout")){
+                btnLogin.setText("Login");
+                btnSend.setEnabled(false);
+                tfMessage.setEnabled(false);
+            }else {
+                log.append("Can't connect to the server...\n");
+            }
+        });
+
     }
 
 }

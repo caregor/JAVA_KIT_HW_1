@@ -5,6 +5,7 @@ import java.awt.*;
 import java.io.*;
 
 public class ServerWindow extends JFrame {
+    private static final String pathLogs = "logs.txt";
     private static final int POS_X = 500;
     private static final int POS_Y = 550;
     private static final int WIDTH = 400;
@@ -13,21 +14,19 @@ public class ServerWindow extends JFrame {
     private final JButton btnStart = new JButton("Start");
     private final JButton btnStop = new JButton("Stop");
     private static final JTextArea log = new JTextArea();
-    private final JScrollPane scrollLog = new JScrollPane(log);
-    private boolean isServerWorking;
+    private static boolean isServerWorking;
     private final JPanel btnPanel = new JPanel(new FlowLayout());
 
-    public static void main(String[] args) {
-        new ServerWindow();
+    public static boolean isServerWorking() {
+        return isServerWorking;
     }
-
-    private ServerWindow(){
+    public ServerWindow(){
         isServerWorking = false;
         btnStop.addActionListener(actionEvent -> {
             isServerWorking = false;
             btnStart.setEnabled(true);
             log.append("Server is working " + isServerWorking + "\n");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("logs.txt"))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(pathLogs))){
                 writer.write(log.getText());
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -53,6 +52,7 @@ public class ServerWindow extends JFrame {
         setTitle("Chat Server");
         setAlwaysOnTop(true);
         log.setEnabled(false);
+        JScrollPane scrollLog = new JScrollPane(log);
         add(scrollLog, BorderLayout.CENTER);
         btnPanel.add(btnStart);
         btnPanel.add(btnStop);
@@ -62,7 +62,7 @@ public class ServerWindow extends JFrame {
     }
 
     private void createFileIfNotExists() {
-        File file = new File("logs.txt");
+        File file = new File(pathLogs);
 
         try {
             if (file.createNewFile()) {
@@ -75,7 +75,7 @@ public class ServerWindow extends JFrame {
 
     private static void readLogFile() throws IOException {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader("logs.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(pathLogs))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line).append("\n");
