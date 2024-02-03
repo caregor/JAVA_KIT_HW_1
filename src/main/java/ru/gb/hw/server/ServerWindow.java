@@ -1,6 +1,10 @@
 package ru.gb.hw.server;
 
+import ru.gb.hw.client.ClientWindow;
+
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.*;
 
@@ -10,6 +14,7 @@ public class ServerWindow extends JFrame {
     private static final int POS_Y = 550;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
+    private static String message;
 
     private final JButton btnStart = new JButton("Start");
     private final JButton btnStop = new JButton("Stop");
@@ -17,7 +22,7 @@ public class ServerWindow extends JFrame {
     private static boolean isServerWorking;
     private final JPanel btnPanel = new JPanel(new FlowLayout());
 
-    public static boolean isServerWorking() {
+    public boolean isServerWorking() {
         return isServerWorking;
     }
     public ServerWindow(){
@@ -83,4 +88,5 @@ public class ServerWindow extends JFrame {
         }
         log.setText(content.toString());
     }
+
 }

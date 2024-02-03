@@ -6,7 +6,8 @@ import ru.gb.hw.server.ServerWindow;
 public class Main {
     public static void main(String[] args) {
 
-        new ServerWindow();
-        new ClientWindow();
+        ServerWindow serverWindow = new ServerWindow();
+        new ClientWindow(serverWindow);
+        new ClientWindow(serverWindow);
     }
 }
