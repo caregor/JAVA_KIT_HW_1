@@ -1,14 +1,17 @@
 package ru.gb.hw.server;
 
 import ru.gb.hw.client.ClientWindow;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class ServerWindow extends JFrame {
+    private final List<ClientWindow> clientWindows = new ArrayList<>();
     private static final String pathLogs = "logs.txt";
     private static final int POS_X = 500;
     private static final int POS_Y = 550;
@@ -87,6 +90,21 @@ public class ServerWindow extends JFrame {
             }
         }
         log.setText(content.toString());
+    }
+
+    public void addClient(ClientWindow clientWindow) {
+        clientWindows.add(clientWindow);
+
+
+    public void sendMessage(String message, ClientWindow sender) {
+        System.out.println("Sender: " + sender);
+        for (ClientWindow clientWindow : clientWindows) {
+            System.out.println("client: " + clientWindow);
+            if (clientWindow != sender) {
+                System.out.println("Found: " + clientWindow);
+                clientWindow.log.append(message + "\n");
+            }
+        }
     }
 
 }

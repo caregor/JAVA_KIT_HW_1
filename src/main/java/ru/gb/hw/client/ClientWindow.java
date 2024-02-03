@@ -3,17 +3,15 @@ package ru.gb.hw.client;
 import ru.gb.hw.server.ServerWindow;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.Objects;
-
 public class ClientWindow extends JFrame {
+    private ServerWindow serverWindow;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
     private static String message = "";
 
-    private final JTextArea log = new JTextArea();
+    public final JTextArea log = new JTextArea();
 
     private final JPanel panelTop = new JPanel(new GridLayout(2,3));
     private final JTextField tfIPAddress = new JTextField("127.0.0.1");
@@ -25,7 +23,6 @@ public class ClientWindow extends JFrame {
     private final JPanel panelBottom = new JPanel(new BorderLayout());
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Send");
-    private final ServerWindow serverWindow;
 
     public ClientWindow(ServerWindow serverWindow) {
         this.serverWindow = serverWindow;
@@ -51,11 +48,12 @@ public class ClientWindow extends JFrame {
         add(scrolling);
 
         setVisible(true);
-
+        serverWindow.addClient(this);
         btnSend.addActionListener(actionEvent -> {
             if (serverWindow.isServerWorking()) {
                 message = tfLogin.getText() + ": " + tfMessage.getText() + "\n";
                 log.append(message);
+                serverWindow.sendMessage(message, this);
                 tfMessage.setText("");
             } else {
                 log.append("Server is offline\n");
