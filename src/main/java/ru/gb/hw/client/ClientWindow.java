@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 public class ClientWindow extends JFrame {
-    private ServerWindow serverWindow;
+    private static boolean online;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
     private static String message = "";
@@ -24,8 +24,11 @@ public class ClientWindow extends JFrame {
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Send");
 
+    public boolean isOnline() {
+        return online;
+    }
+
     public ClientWindow(ServerWindow serverWindow) {
-        this.serverWindow = serverWindow;
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(WIDTH, HEIGHT);
@@ -65,14 +68,15 @@ public class ClientWindow extends JFrame {
                 btnLogin.setText("Logout");
                 btnSend.setEnabled(true);
                 tfMessage.setEnabled(true);
+                online = true;
             } else if (serverWindow.isServerWorking() && Objects.equals(btnLogin.getText(), "Logout")) {
                 btnLogin.setText("Login");
                 btnSend.setEnabled(false);
                 tfMessage.setEnabled(false);
+                online = false;
             } else {
                 log.append("Can't connect to the server...\n");
             }
         });
-
     }
 }

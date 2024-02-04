@@ -4,11 +4,8 @@ import ru.gb.hw.client.ClientWindow;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
 
 public class ServerWindow extends JFrame {
     private final List<ClientWindow> clientWindows = new ArrayList<>();
@@ -97,14 +94,11 @@ public class ServerWindow extends JFrame {
     }
 
     public void sendMessage(String message, ClientWindow sender) {
-        System.out.println("Sender: " + sender);
         for (ClientWindow clientWindow : clientWindows) {
-            System.out.println("client: " + clientWindow);
-            if (clientWindow != sender) {
-                System.out.println("Found: " + clientWindow);
-                clientWindow.log.append(message + "\n");
+            if (clientWindow != sender && clientWindow.isOnline()) {
+                clientWindow.log.append(message);
+                log.append(message);
             }
         }
     }
-
 }
