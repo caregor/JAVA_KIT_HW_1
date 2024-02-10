@@ -1,14 +1,11 @@
 package ru.gb.hw.server;
 
-import ru.gb.hw.client.ClientWindow;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
-public class ServerWindow extends JFrame {
-    private final List<ClientWindow> clientWindows = new ArrayList<>();
+public class ServerWindow extends JFrame implements Repository{
+    private final Server server;
     private static final String pathLogs = "logs.txt";
     private static final int POS_X = 500;
     private static final int POS_Y = 550;
@@ -19,35 +16,24 @@ public class ServerWindow extends JFrame {
     private final JButton btnStart = new JButton("Start");
     private final JButton btnStop = new JButton("Stop");
     private static final JTextArea log = new JTextArea();
-    private static boolean isServerWorking;
     private final JPanel btnPanel = new JPanel(new FlowLayout());
 
-    public boolean isServerWorking() {
-        return isServerWorking;
-    }
     public ServerWindow(){
-        isServerWorking = false;
+        this.server = new Server(this);
+
         btnStop.addActionListener(actionEvent -> {
-            isServerWorking = false;
+            Server.setServerWorking(false);
             btnStart.setEnabled(true);
-            log.append("Server is working " + isServerWorking + "\n");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(pathLogs))){
-                writer.write(log.getText());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            addMessage("Server is working " + Server.isServerWorking());
+            saveMessages(pathLogs);
         });
 
         btnStart.addActionListener(actionEvent -> {
-            isServerWorking = true;
-            createFileIfNotExists();
-            try {
-                readLogFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            log.append("-------------------------\n");
-            log.append("Server is working " + isServerWorking + "\n");
+            Server.setServerWorking(true);
+            createStorage(pathLogs);
+            readLog(pathLogs);
+            addMessage("----------------------");
+            addMessage("Server is working " + Server.isServerWorking());
             btnStart.setEnabled(false);
         });
 
@@ -66,39 +52,49 @@ public class ServerWindow extends JFrame {
         setVisible(true);
     }
 
-    private void createFileIfNotExists() {
-        File file = new File(pathLogs);
-
-        try {
-            if (file.createNewFile()) {
-                log.append("Файл " + "logs.txt" + " создан успешно.");
-            }
-        } catch (IOException e) {
-            log.append("Ошибка при создании файла: " + e.getMessage());
-        }
+    public Server getConnection() {
+        return this.server;
     }
 
-    private static void readLogFile() throws IOException {
+    @Override
+    public void addMessage(String message) {
+        log.append(message + "\n");
+        log.updateUI();
+    }
+
+    @Override
+    public void readLog(String pathFile) {
         StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(pathLogs))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(pathFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line).append("\n");
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         log.setText(content.toString());
     }
 
-    public void addClient(ClientWindow clientWindow) {
-        clientWindows.add(clientWindow);
+    @Override
+    public void createStorage(String pathLogs) {
+        File file = new File(pathLogs);
+
+        try {
+            if (file.createNewFile()) {
+                addMessage("Файл " + "logs.txt" + " создан успешно.");
+            }
+        } catch (IOException e) {
+            addMessage("Ошибка при создании файла: " + e.getMessage());
+        }
     }
 
-    public void sendMessage(String message, ClientWindow sender) {
-        for (ClientWindow clientWindow : clientWindows) {
-            if (clientWindow != sender && clientWindow.isOnline()) {
-                clientWindow.log.append(message);
-                log.append(message);
-            }
+    @Override
+    public void saveMessages(String pathFile) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(pathFile))){
+            writer.write(log.getText());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

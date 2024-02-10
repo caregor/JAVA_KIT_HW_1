@@ -4,12 +4,13 @@ import ru.gb.hw.server.ServerWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.Objects;
-public class ClientWindow extends JFrame {
-    private static boolean online;
+
+public class ClientWindow extends JFrame implements View{
+    private Client client;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
-    private static String message = "";
 
     public final JTextArea log = new JTextArea();
 
@@ -24,11 +25,9 @@ public class ClientWindow extends JFrame {
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Send");
 
-    public boolean isOnline() {
-        return online;
-    }
-
     public ClientWindow(ServerWindow serverWindow) {
+
+        client = new Client(this, serverWindow.getConnection());
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(WIDTH, HEIGHT);
@@ -51,32 +50,47 @@ public class ClientWindow extends JFrame {
         add(scrolling);
 
         setVisible(true);
-        serverWindow.addClient(this);
-        btnSend.addActionListener(actionEvent -> {
-            if (serverWindow.isServerWorking()) {
-                message = tfLogin.getText() + ": " + tfMessage.getText() + "\n";
-                log.append(message);
-                serverWindow.sendMessage(message, this);
-                tfMessage.setText("");
-            } else {
-                log.append("Server is offline\n");
-            }
-        });
-        btnLogin.addActionListener(actionEvent -> {
-            if (serverWindow.isServerWorking() && Objects.equals(btnLogin.getText(), "Login")) {
-                log.append("Connection Successful!\n");
-                btnLogin.setText("Logout");
-                btnSend.setEnabled(true);
-                tfMessage.setEnabled(true);
-                online = true;
-            } else if (serverWindow.isServerWorking() && Objects.equals(btnLogin.getText(), "Logout")) {
-                btnLogin.setText("Login");
-                btnSend.setEnabled(false);
-                tfMessage.setEnabled(false);
-                online = false;
-            } else {
-                log.append("Can't connect to the server...\n");
-            }
-        });
+        btnSend.addActionListener(e -> sendMessage());
+        btnLogin.addActionListener(e -> {
+            if (Objects.equals(btnLogin.getText(), "Login")) {
+                connectedToServer();
+            }else disconnectedFromServer();
+            });
+    }
+
+    public void sendMessage(){
+        client.sendMessage(tfMessage.getText());
+        tfMessage.setText("");
+    }
+
+    @Override
+    protected void processWindowEvent(WindowEvent e) {
+        super.processWindowEvent(e);
+        if (e.getID() == WindowEvent.WINDOW_CLOSING){
+            disconnectedFromServer();
+        }
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        log.append(message);
+    }
+
+    @Override
+    public void connectedToServer() {
+        if (client.connectToServer(tfLogin.getText())){
+            btnLogin.setText("Logout");
+            tfMessage.setEnabled(true);
+            btnSend.setEnabled(true);
+
+        }
+    }
+
+    @Override
+    public void disconnectedFromServer() {
+        client.disconnectFromServer();
+        btnLogin.setText("Login");
+        tfMessage.setEnabled(false);
+        btnSend.setEnabled(false);
     }
 }
