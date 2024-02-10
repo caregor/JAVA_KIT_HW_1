@@ -59,7 +59,6 @@ public class ServerWindow extends JFrame implements Repository{
     @Override
     public void addMessage(String message) {
         log.append(message + "\n");
-        log.updateUI();
     }
 
     @Override
